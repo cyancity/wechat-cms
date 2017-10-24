@@ -42,7 +42,7 @@
               </a>
             </label>
             <div class="col-sm-10">
-              <text-complete id="content" area-class="form-control" v-model="content" placeholder="Markdown" :rows="7" :strategies="strategies"></text-complete>
+              <text-complete id="content" ref="content" area-class="form-control" v-model="content" placeholder="Markdown" :rows="7" :strategies="strategies"></text-complete>
             </div>
           </div>
           <div class="form-group">
@@ -149,7 +149,7 @@ export default {
         commetable_type: this.commentableType
       }
     }).then(res => {
-      res.data.data.forEacha(data => {
+      res.data.data.forEach(data => {
         data.content_html = this.parse(data.content_raw)
         return data
       })
@@ -163,11 +163,142 @@ export default {
     }
   },
   methods: {
-    
+    comments() {
+      const data = {
+        content: this.content,
+        commentable_id: this.commentableId,
+        commentable_type: this.commentableType
+      }
+
+      this.isSubmiting = true
+
+      this.$axios.post('comments', data)
+        .then(res => {
+          let comment = null
+
+          comment = res.data.data
+          comment.content_html = this.parse(comment.content_raw)
+          this.comments.push(comment)
+          this.content = ''
+          this.isSubmiting = false
+
+          toastr.success('评论成功')
+        }).catch(({res}) => {
+          this.isSubmiting = false
+          stack_error(res)
+        })
+    },
+    reply(name) {
+      $('#content').focus()
+      this.content = '@' + name + ' '
+    },
+    commentDelete(index, id) {
+      this.$axios.delete('comments/' + id)
+        .then(res => {
+          this.commets.splice(index, 1)
+          toastr.success('评论删除成功')
+        })
+    },
+    parse(html) {
+      marked.setOptions({
+        highlight: code => {
+          return hljs.highlightAuto(code).value
+        }
+      })
+      
+      return emojione.toImage(marked(html))
+    },
+    contentUploader() {
+      let vm = this
+
+      this.$refs.content.addEventListener('paste', e => {
+        console.log(event)
+        // what is this event? where it from
+        if (event.clipboardData.types.indexOf("Files") >= 0) {
+          event.preventDefault()
+        }
+      }, false)
+
+      let uploader = new FineUploader.FineUploaderBasic({
+        paste: {
+          targetElement: vm.$refs.content
+        },
+        request: {
+          endpoint: '/api/file/upload',
+          inputName: 'image',
+          customHeaders: {
+            'X-CSRF-TOKEN': window.Laravel.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          params: {
+            stratgy: 'comment'
+          }
+        },
+        validation: {
+          allowedExtension: ['jpeg', 'jpg', 'gif', 'png']
+        },
+        callbacks: {
+          onPasteReceived(file) {
+            console.log(this)
+            console.log('success')
+            let promise = new FineUploadeer.Promise()
+
+            if (file == null || typeof file.type == 'undefined' || file.type.indexOf('image/')) {
+              taostr.error('仅能上传图片')
+              return promise.failure('not an image')
+            }
+
+            if (!/\/(?:jpeg|jpg|png|gif)/i.test(file.type)) {
+              toastr.error('上传失败，仅支持jpeg, jpg, git 与 png 格式的图片')
+              return promise.failure('not an image')
+            }
+
+            return promise.then(() => {
+              vm.createdImageUploading('image.png')
+            }).success('image')
+          },
+          onComplete(id, name, res) {
+            vm.replaceImageUploading(name, res.url)
+          },
+          onError() {
+            taostr.error('上传失败')
+            vm.replaceImageUploading(name, '')
+          }
+        }
+      })
+
+      let dragAndDropModule = new FineUploader.DragAndDrop({
+        dropZoneElements: vm.$refs.content,
+        callbacks: {
+          processingDroppedFilesComplete(files, dropTarget) {
+            files.forEach(file => {
+              if (!/\/(?:jpeg|jpg|png|gif)/i.test(file.type)) {
+                toastr.error('上传失败，仅支持jpeg, jpg, git 与 png 格式的图片')
+                return promise.failure('not an image')
+              }
+              vm.createdImageUploading(file.name)
+            })
+            uploader.addFile(files)
+          }
+        }
+      })
+    },
+    getImageUploading() {
+      return '\n![Uploading ...]()\n'
+    },
+    createdImageUploading(name) {
+      this.content = this.content + this.getImageUploading()
+    },
+    replaceImageUploading(name, url) {
+      let result = ''
+
+      if (url) {
+        result = '\n!['+name+']('+url+')\n'
+      }
+
+      this.content = this.content.replace(this.getImageUploading(), result)
+    }
+
   }
 }
 </script>
-
-<style>
-
-</style>
