@@ -30,7 +30,7 @@ class Article extends Model
 
     protected $casts = [
     	'content' => 'array'
-    ]
+    ];
 
     public function boot()
     {
@@ -96,7 +96,7 @@ class Article extends Model
     		'raw' => $value,
     		'html' => (new Markdowner)->convertMarkdownToHtml($value)
     	];
-    	$this->attributes['content'] = json_encode($data)
+    	$this->attributes['content'] = json_encode($data);
     }
 
 }

@@ -20,7 +20,7 @@ class CreateAdmin extends Command
 
 	public function __construct()
 	{
-		parent::__construct()
+		parent::__construct();
 	}
 
 	public function handle()
@@ -64,7 +64,7 @@ class CreateAdmin extends Command
 			'name' => 'required|max:255|unique:users',
 			'email' => 'required|email|max:255|unique:users',
 			'password' => 'required|min:6'
-		])
+		]);
 
 		if (!$validator->passes()) {
 			throw new RuntimeExpection($validator->errors()->first());
