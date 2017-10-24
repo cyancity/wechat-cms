@@ -81,5 +81,20 @@ class DiscussionRepository
 
 		return $this->model;
 	}
+
+	public function syncTag($value='')
+	{
+		return $discussion->tags()->sync($tags);
+	}
+
+	public function listTagsIdsForDis(Discussion $discussion)
+	{
+		return $discussion->tags->pluck('id')->toArray();
+	}
+
+	public function destory($id)
+	{
+		return $this->getById($id)->delete();
+	}
 }
 
