@@ -49,6 +49,25 @@ export default {
       let downType = 'is_down_voted'
       let checkType = type === 'up' ? downType : upType
       let votingType = type === 'up' ? upType : downType
+
+      this.$axios.post(url, {id: id})
+        .then(() => {
+          if (this.item[checkType]) {
+            this.item[upType] = !this.item[upType]
+            this.item[downType] = !this.item[downType]
+            type === 'up' ? this.item.vote_count++ : this.item.vote_count--
+          } else {
+            this.item[votingType] = !this.item[votingType]
+            if (type === 'up') {
+              this.item[upType] ? this.item.vote_count++ : this.item.vote_count--
+            }
+          }
+        }).catch(res => {
+          if (res.status === 401) {
+            // window.location = '/login'
+            this.$router.push('/login')
+          }
+        })
     }
   }
 }
