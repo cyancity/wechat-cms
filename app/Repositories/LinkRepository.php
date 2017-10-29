@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace App\Repositories;
 
 use App\Link;
 use App\Scopes\StatusScope;
@@ -33,7 +33,7 @@ class LinkRepository
 
 	public function update($id, $input)
 	{
-		$this->model = $this->model->withoutGlobalScope(StatusScope::class)->findOrFail($id)
+		$this->model = $this->model->withoutGlobalScope(StatusScope::class)->findOrFail($id);
 
 		return $this->save($this->model, $input);
 	}

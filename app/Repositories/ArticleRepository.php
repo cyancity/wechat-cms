@@ -20,7 +20,7 @@ class ArticleRepository
 		$this->visitor = $visitor;
 	}
 
-	public function page($number = 10, $sort = 'desc', $soryColumn = 'created_at')
+	public function page($number = 10, $sort = 'desc', $sortColumn = 'created_at')
 	{
 		$this->model = $this->checkAuthScope();
 		return $this->model->orderBy($sortColumn, $sort)->paginate($number);
@@ -46,14 +46,14 @@ class ArticleRepository
 		return $article;
 	}
 
-	public function syncTag(array $tags
+	public function syncTag(array $tags)
 	{
 		$this->model->tags()->sync($tags);
 	}
 
 	public function search($key)
 	{
-		$key = $trim($key);
+		$key = trim($key);
 		return $this->model
 					->where('title', 'like', "%{$key}%")
 					->orderBy('published_at', 'desc')

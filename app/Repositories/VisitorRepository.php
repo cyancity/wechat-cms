@@ -40,7 +40,7 @@ class VisitorRepository
     			'ip' => $ip,
     			'article_id' => $article_id,
     			'clicks' => 1
-    		]
+    		];
     		$this->model->firstOrFail($data);
     	}
     }

@@ -33,4 +33,34 @@ class CommentControlelr extends ApiController
 
     return $this->response->item($comment);
   }
+
+  public function show(Request $request, $commentableId)
+  {
+    $commentableType = $request->get('commentable_type');
+
+    $comments = $this->comment->getByCommentable($commentableId, $commentableType);
+
+    return $this->response->collection($comments);
+  }
+
+  public function edit($id)
+  {
+    return $this->response->item($this->comment->getById($id));
+  }
+
+  public function update(CommentRequest $request, $id)
+  {
+      $this->comment->update($id, $request->all());
+
+      return $this->noContent();
+  }
+
+  public function destory($id)
+  {
+      $this->authorize('delete', $this->comment->getById($id));
+
+      $this->comment->destory($id);
+
+      return $this->response->withNoContent;
+  }
 }

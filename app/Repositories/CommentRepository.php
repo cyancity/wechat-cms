@@ -67,7 +67,7 @@ class CommentRepository
     			: $this->upOrDownVote($user, $comment, 'down');
     }
 
-    public function upOrDownVote($user, $targetm $type = 'up')
+    public function upOrDownVote($user, $target, $type = 'up')
     {
     	$hasVoted = $user->{'has'.ucfirst($type).'Voted'}($target);
 
