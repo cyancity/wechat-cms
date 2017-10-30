@@ -87,7 +87,7 @@ class DiscussionRepository
 		return $discussion->tags()->sync($tags);
 	}
 
-	public function listTagsIdsForDis(Discussion $discussion)
+	public function listTagsIdsForDiscussion(Discussion $discussion)
 	{
 		return $discussion->tags->pluck('id')->toArray();
 	}
